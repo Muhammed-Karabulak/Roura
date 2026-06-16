@@ -1,0 +1,7 @@
+keyboard
+psutil
+rich
+vosk
+PyAudio
+pyttsx3
+pydub
