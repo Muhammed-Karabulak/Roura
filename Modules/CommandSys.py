@@ -108,7 +108,7 @@ class CommadSystem:
             # Closing Roura
             "kill" : kill_fonk,
             # Clear Console
-            "clear terminal" : (lambda: system("cls")),
+            "clear" : (lambda: system("cls")),
             # Organize Files In Path
             "organize" : commands.organizeFiles,            
             # Open Youtube Music       
