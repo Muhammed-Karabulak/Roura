@@ -6,55 +6,11 @@ from keyboard import press, write
 from time import sleep
 
 from rich.console import Console
-
-class param:
-    def __init__(self, param: list | tuple | set | dict | str = None):
-        """Helper container to hold command parameters in various types."""
-        self.params = param
-        
-        self.type = type(param)
-                    
-    def __str__(self):
-        """Converts parameters into a single-line text suitable for display."""
-        if self.type == list or self.type == set:
-            return " ".join(map(lambda x: str(x), self.params))
-        elif self.type == dict:
-            return " ".join(map(lambda x: str(x), self.params.keys()))
-        else:
-            return None
-        
-    def strForLink(self):
-        """Converts parameters to a format usable in URL query strings."""
-        if self.type != str:
-            return "+".join(self.params)
-        else:
-            return self.params.replace(" ", "+")            
-            
-    def __repr__(self):
-        """Returns the raw parameter value as the object's representation."""
-        return self.params if self.params else None
-    
-    def __getitem__(self, index):
-        """Provides safe indexed access to parameter items."""
-        if index < len(self.params):
-            if self.type == list or self.type == dict or self.type == str:
-                return self.params[index]
-            else:
-                return None
-        return None
-    
-    def __getattr__(self, name):
-        """Proxies string behaviors to provide convenience methods on the parameter."""
-        if hasattr(str(self), name):
-            return getattr(str(self), name)
-        
+from Modules.Param import Param        
        
-class Commads:
-    def __init__(self, Console):
-            """Initializes helper class that runs system-level commands."""
-            self.console = Console
-            self.printFlag = True      
-    
+console = Console()                
+
+class Commands:
     def organizeFiles(self):
         """Creates folders by file extensions in the user-provided directory."""
         path = input("  Path :")
@@ -77,10 +33,10 @@ class Commads:
                 move(file, f"{f[len(f) - 1]}".upper() + "'s")
             
         chdir(startDir)
-        self.console.print(f"Organization Complite.", style="bold green") 
+        console.print(f"Organization Complite.", style="bold green") 
 
 
-    def find(self, search : param = None):
+    def find(self, search : Param = None):
         """Opens the search box in the active application and optionally types provided text."""
         press("F3")
         if search:
@@ -90,10 +46,7 @@ class Commads:
 class CommadSystem:
     def __init__(self, kill_fonk, SplitWord = "and"):
         """Initializes the command manager, preparing default and parameterized command tables."""
-        self.startDir = getcwd()  
-        self.console = Console() 
-        
-        commands = Commads(self.console)
+        self.startDir = getcwd()         
         
         self.lastCommads = []
         
@@ -103,21 +56,21 @@ class CommadSystem:
         self.printFlag = True    
 
         # Rora's Commads
-        self.defultCommands = {
+        self.notparameterizedCommands = {
             "clear" : (lambda: system("cls")),
             # Closing Roura
             "kill" : kill_fonk,
             # Clear Console
             "clear" : (lambda: system("cls")),
             # Organize Files In Path
-            "organize" : commands.organizeFiles,            
+            "organize" : Commands.organizeFiles,            
             # Open Youtube Music       
             "music" : (lambda: system("start https://music.youtube.com")),
             # Open Youtube
             "youtube" : (lambda: system("start https://youtube.com")),            
             
             # Pressing F3
-            "find" : commands.find,
+            "find" : Commands.find,
             
             # Change Print State
             "don't print" : (lambda: self.printFlagChange(False)),
@@ -135,7 +88,7 @@ class CommadSystem:
             "music" : (lambda args: system("start https://music.youtube.com/search?q={}".format(args.strForLink()))),
             
             # Find A Word Or Sentence From In Page
-            "find" : (lambda args: commands.find(args)),
+            "find" : (lambda args: Commands.find(args)),
         }
         
     def getLastCommad(self) -> str:
@@ -144,15 +97,14 @@ class CommadSystem:
     
     def printFlagChange(self, state : bool):
         """Toggles whether commands are printed to the console."""
-        self.printFlag = state
-        
+        self.printFlag = state        
                 
     def addCommad(self, func : set, haveParameter = False) -> None:
         """Adds new commands to the default or parameterized lists from external callers."""
         if haveParameter:
             self.parameterizedCommands.update(func)
         else:
-            self.defultCommands.update(func)
+            self.notparameterizedCommands.update(func)
             
             
     def debug(self, commandType : str) -> None:
@@ -186,7 +138,7 @@ class CommadSystem:
         self.lastCommads.clear()
         
         if self.printFlag:
-            self.console.print(f"[b]{text}[/b]")
+            console.print(f"[b]{text}[/b]")
             
         reqCommands = [x.strip() for x in text.split("and")]
         
@@ -203,15 +155,15 @@ class CommadSystem:
                 "params" : ""
             }            
             
-            if partialText[0] in self.defultCommands:
+            if partialText[0] in self.notparameterizedCommands:
                 params["commad"] = partialText[0]
                 params["is defult commad"] = True
                 
-            elif first2Word in self.defultCommands:
+            elif first2Word in self.notparameterizedCommands:
                 params["commad"] = first2Word
                 params["is defult commad"] = True      
 
-            elif first3Word in self.defultCommands:
+            elif first3Word in self.notparameterizedCommands:
                 params["commad"] = first3Word
                 params["is defult commad"] = True
                 
@@ -232,19 +184,19 @@ class CommadSystem:
                 
             
             if params["is defult commad"] and not params["is parameter command"]:
-                self.defultCommands[params["commad"]]()                
+                self.notparameterizedCommands[params["commad"]]()                
                 self.lastCommads.append(params["commad"])
                 
             elif params["is parameter command"] and not params["is defult commad"]:
-                self.parameterizedCommands[params["commad"]](param(params["params"]))                
+                self.parameterizedCommands[params["commad"]](Param(params["params"]))                
                 self.lastCommads.append(params["commad"])
                 
             elif params["is defult commad"] and params["is parameter command"]:
                 if params["params"]:
-                    self.parameterizedCommands[params["commad"]](param(params["params"]))
+                    self.parameterizedCommands[params["commad"]](Param(params["params"]))
                     self.lastCommads.append(params["commad"])
                 else:
-                    self.defultCommands[params["commad"]]()
+                    self.notparameterizedCommands[params["commad"]]()
                     self.lastCommads.append(params["commad"])
             
             

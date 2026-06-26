@@ -2,6 +2,7 @@ from sys import executable, argv
 from os import execv
 from threading import Thread
 
+from Modules import CommandSys
 from Modules.CommandSys import CommadSystem
 from Modules.SpeechToText import SpeechToText
 from Modules.TextToSpeech import TextToSpeech
@@ -12,6 +13,7 @@ class Roura:
     def __init__(self):
         """Initializes the command system, speech recognition,
         and text-to-speech components."""
+        
         self.CSYS = CommadSystem(self.kill)
         self.STT = SpeechToText(on_final=self.processRequest)
         self.TTS = TextToSpeech()
@@ -116,7 +118,7 @@ class Roura:
     def loop(self):
         """Runs the assistant's continuous listening and command-processing loop."""
         try:
-            self.CSYS.defultCommands["clear"]()
+            self.CSYS.notparameterizedCommands["clear"]()
             self.STT.start()
             
             while True:
