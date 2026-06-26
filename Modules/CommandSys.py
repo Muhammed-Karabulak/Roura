@@ -56,7 +56,7 @@ class CommadSystem:
         self.printFlag = True    
 
         # Rora's Commads
-        self.notparameterizedCommands = {
+        self.notParameterizedCommands = {
             "clear" : (lambda: system("cls")),
             # Closing Roura
             "kill" : kill_fonk,
@@ -104,7 +104,7 @@ class CommadSystem:
         if haveParameter:
             self.parameterizedCommands.update(func)
         else:
-            self.notparameterizedCommands.update(func)
+            self.notParameterizedCommands.update(func)
             
             
     def debug(self, commandType : str) -> None:
@@ -155,15 +155,15 @@ class CommadSystem:
                 "params" : ""
             }            
             
-            if partialText[0] in self.notparameterizedCommands:
+            if partialText[0] in self.notParameterizedCommands:
                 params["commad"] = partialText[0]
                 params["is defult commad"] = True
                 
-            elif first2Word in self.notparameterizedCommands:
+            elif first2Word in self.notParameterizedCommands:
                 params["commad"] = first2Word
                 params["is defult commad"] = True      
 
-            elif first3Word in self.notparameterizedCommands:
+            elif first3Word in self.notParameterizedCommands:
                 params["commad"] = first3Word
                 params["is defult commad"] = True
                 
@@ -184,7 +184,7 @@ class CommadSystem:
                 
             
             if params["is defult commad"] and not params["is parameter command"]:
-                self.notparameterizedCommands[params["commad"]]()                
+                self.notParameterizedCommands[params["commad"]]()                
                 self.lastCommads.append(params["commad"])
                 
             elif params["is parameter command"] and not params["is defult commad"]:
@@ -196,7 +196,7 @@ class CommadSystem:
                     self.parameterizedCommands[params["commad"]](Param(params["params"]))
                     self.lastCommads.append(params["commad"])
                 else:
-                    self.notparameterizedCommands[params["commad"]]()
+                    self.notParameterizedCommands[params["commad"]]()
                     self.lastCommads.append(params["commad"])
             
             
